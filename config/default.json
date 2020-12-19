@@ -1,0 +1,10 @@
+{
+  "port": 8080,
+  "db": {
+    "synchronize": true,
+    "logging": true,
+    "logger": "advanced-console",
+    "entities": ["build/**/model.js"]
+  },
+  "subRouteSpecialCharacter": "?"
+}

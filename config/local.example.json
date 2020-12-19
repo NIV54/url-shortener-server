@@ -1,0 +1,7 @@
+{
+  "frontendUrl": "<url of the frontend server>",
+  "db": {
+    "username": "<username>",
+    "password": "<password>"
+  }
+}

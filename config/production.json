@@ -1,0 +1,10 @@
+{
+  "db": {
+    "type": "mongodb",
+    "host": "url-shortener-shard-00-01.1dolf.mongodb.net",
+    "port": 27017,
+    "database": "url-shortener",
+    "ssl": true,
+    "authSource": "admin"
+  }
+}

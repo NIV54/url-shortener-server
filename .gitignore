@@ -1,0 +1,14 @@
+node_modules
+
+# editors
+.idea/
+.vscode/
+
+# log
+*.log*
+
+# compiled
+build/
+
+# local files
+config/local.json
