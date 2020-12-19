@@ -20,6 +20,10 @@ const start = async () => {
 
   app.use("/url", urlRouter);
 
+  app.get("/", (_req, res) => {
+    res.redirect(config.get("frontendUrl"));
+  });
+
   app.get("/:alias", async (req, res) => {
     const { alias } = req.params;
     const shortURL = await req.shortURLsRepository.findOne({ alias });
