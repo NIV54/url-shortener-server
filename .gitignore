@@ -11,4 +11,4 @@ node_modules
 build/
 
 # local files
-config/local.json
+config/local.*
