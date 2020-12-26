@@ -74,10 +74,10 @@ urlRouter.delete("/:id", async (req, res, next) => {
   }
 });
 
-urlRouter.use((error, _req, res, _next) => {
-  let message =
+urlRouter.use((error, _req, res, next) => {
+  error.message =
     error.path === "alias"
       ? "alias can contain only numbers, lowercase letters, dashes and underscores"
       : error.message;
-  res.status(error.status || 500).json({ message });
+  next(error);
 });

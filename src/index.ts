@@ -40,6 +40,10 @@ const start = async () => {
     return res.redirect(config.get("frontendUrl") + `?alias=${alias}`);
   });
 
+  app.use((error, _req, res, _next) => {
+    res.status(error.status || 500).json({ message: error.message });
+  });
+
   const port = process.env.PORT || config.get("port");
 
   app.listen(port, () => {
