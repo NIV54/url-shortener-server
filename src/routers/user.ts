@@ -2,6 +2,9 @@ import { Router } from "express";
 import bcrypt from "bcrypt";
 import passport from "passport";
 import config from "config";
+import jwt from "jsonwebtoken";
+
+import { User } from "../db/user/model";
 
 export const userRouter = Router();
 
@@ -14,7 +17,7 @@ userRouter.post("/register", async (req, res, next) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    req.usersRepository.save({ email, password: hashedPassword });
+    req.usersRepository.save({ email, password: hashedPassword, admin: false });
 
     res.sendStatus(200);
   } catch (error) {
@@ -27,16 +30,16 @@ userRouter.post("/login", (req, res, next) => {
     "local",
     {
       successRedirect: `${config.get("frontendUrl")}`,
-      failureRedirect: `${config.get("frontendUrl")}\login`
+      failureRedirect: `${config.get("frontendUrl")}login`
     },
-    (error, passportUser, info) => {
+    (error, user: User, info) => {
       if (error) return res.status(500).send(error);
-      if (passportUser) {
-        // TODO: return new jwt
-        res.send("OK!");
-      } else {
-        res.status(401).send(info.message);
+      if (user) {
+        const token = jwt.sign({ id: user.id }, config.get("jwtSecret"));
+        return res.send(token);
       }
+
+      res.status(401).send(info.message);
     }
   )(req, res, next);
 });

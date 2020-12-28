@@ -3,5 +3,6 @@
   "db": {
     "username": "<username>",
     "password": "<password>"
-  }
+  },
+  "jwtSecret": "<jwt secret>"
 }
