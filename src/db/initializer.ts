@@ -1,8 +1,6 @@
 import { createConnection, ConnectionOptions } from "typeorm";
 import config from "config";
-import { Express } from "express";
-import { ShortURL } from "./short-url/model";
-import { User } from "./user/model";
+import { Container } from "typedi";
 
 class DbInitializer {
   private connectionOptions: ConnectionOptions;
@@ -18,13 +16,9 @@ class DbInitializer {
   };
 }
 
-export const connectToDB = async (app: Express) => {
+export const connectToDB = async () => {
   const dbInitializer = new DbInitializer();
   const connection = await dbInitializer.connect();
-  app.use((req, _res, next) => {
-    req.db = connection;
-    req.shortURLsRepository = connection.getRepository(ShortURL);
-    req.usersRepository = connection.getRepository(User);
-    next();
-  });
+
+  Container.set("connection", connection);
 };

@@ -2,12 +2,18 @@ import "reflect-metadata";
 
 import express from "express";
 import helmet from "helmet";
-
 import config from "config";
 import cors from "cors";
+import passport from "passport";
+import { Connection } from "typeorm";
+import { Container } from "typedi";
 
 import { connectToDB } from "./db/initializer";
 import { urlRouter } from "./routers/url";
+import { setupPassport } from "./utils/types/passport";
+import { ShortURL } from "./db/short-url/model";
+import { User } from "./db/user/model";
+import { userRouter } from "./routers/user";
 
 const start = async () => {
   const app = express();
@@ -16,9 +22,24 @@ const start = async () => {
   app.use(express.json());
   app.use(cors());
 
-  await connectToDB(app);
+  app.use(express.urlencoded({ extended: true }));
+
+  await connectToDB();
+
+  setupPassport(passport);
+
+  app.use(passport.initialize());
+  app.use(passport.session());
+
+  app.use((req, _res, next) => {
+    const connection = Container.get<Connection>("connection");
+    req.shortURLsRepository = connection.getRepository(ShortURL);
+    req.usersRepository = connection.getRepository(User);
+    next();
+  });
 
   app.use("/url", urlRouter);
+  app.use("/user", userRouter);
 
   app.get("/", (_req, res) => {
     res.redirect(config.get("frontendUrl"));
