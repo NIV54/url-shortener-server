@@ -10,16 +10,27 @@ export const userRouter = Router();
 
 userRouter.post("/register", async (req, res, next) => {
   try {
-    const { email, password } = req.body;
+    const { email, username, password } = req.body;
     // TODO: add validation
+    // TODO: second password validation
+
     if (await req.usersRepository.findOne({ email })) {
-      throw new Error("Email is already taken");
+      throw new Error("Email is already in use");
+    }
+
+    if (await req.usersRepository.findOne({ username })) {
+      throw new Error("Username is already taken");
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    req.usersRepository.save({ email, password: hashedPassword, admin: false });
+    const { password: _, ...created } = await req.usersRepository.save({
+      email,
+      username,
+      password: hashedPassword,
+      admin: false
+    });
 
-    res.sendStatus(200);
+    res.status(200).json(created);
   } catch (error) {
     next(error);
   }
