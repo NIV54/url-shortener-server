@@ -4,13 +4,12 @@ import express from "express";
 import helmet from "helmet";
 import config from "config";
 import cors from "cors";
-import passport from "passport";
 import { Connection } from "typeorm";
 import { Container } from "typedi";
+import cookieParser from "cookie-parser";
 
 import { connectToDB } from "./db/initializer";
 import { urlRouter } from "./routers/url";
-import { setupPassport } from "./utils/types/passport";
 import { ShortURL } from "./db/short-url/model";
 import { User } from "./db/user/model";
 import { userRouter } from "./routers/user";
@@ -20,16 +19,12 @@ const start = async () => {
 
   app.use(helmet());
   app.use(express.json());
-  app.use(cors());
+  app.use(cors({ credentials: true, origin: true }));
 
   app.use(express.urlencoded({ extended: true }));
+  app.use(cookieParser());
 
   await connectToDB();
-
-  setupPassport(passport);
-
-  app.use(passport.initialize());
-  app.use(passport.session());
 
   app.use((req, _res, next) => {
     const connection = Container.get<Connection>("connection");

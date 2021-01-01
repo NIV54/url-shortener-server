@@ -4,8 +4,6 @@ import passport from "passport";
 import config from "config";
 import jwt from "jsonwebtoken";
 
-import { User } from "../db/user/model";
-
 export const userRouter = Router();
 
 userRouter.post("/register", async (req, res, next) => {
@@ -36,21 +34,34 @@ userRouter.post("/register", async (req, res, next) => {
   }
 });
 
-userRouter.post("/login", (req, res, next) => {
-  passport.authenticate(
-    "local",
-    {
-      successRedirect: `${config.get("frontendUrl")}`,
-      failureRedirect: `${config.get("frontendUrl")}login`
-    },
-    (error, user: User, info) => {
-      if (error) return res.status(500).send(error);
-      if (user) {
-        const token = jwt.sign({ id: user.id }, config.get("jwtSecret"));
-        return res.send(token);
-      }
+userRouter.post("/login", async (req, res, next) => {
+  try {
+    const { email, password } = req.body;
+    // TODO: validate
+    // TODO: add option to log in with username
 
-      res.status(401).send(info.message);
+    const user = await req.usersRepository.findOne({
+      email
+    });
+
+    if (!user) {
+      throw new Error("User does not exist");
     }
-  )(req, res, next);
+
+    const match = await bcrypt.compare(password, user.password);
+    if (!match) {
+      throw new Error("Password incorrect");
+    }
+
+    // TODO: set expiration data
+    // TODO: add refresh token
+
+    const token = jwt.sign({ id: user.id }, config.get("jwtSecret"));
+    res.cookie("token", token);
+    return res.status(200).json({ token });
+  } catch (error) {
+    next(error);
+  }
 });
+
+// TODO: logout
