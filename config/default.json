@@ -4,6 +4,8 @@
     "synchronize": true,
     "logging": true,
     "logger": "advanced-console",
+    "useUnifiedTopology": true,
+    "useNewUrlParser": true,
     "entities": ["build/**/model.js"]
   },
   "subRouteSpecialCharacter": "?"
