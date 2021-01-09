@@ -28,11 +28,13 @@ const start = async () => {
 
   app.use((req, _res, next) => {
     const connection = Container.get<Connection>("connection");
+    // TODO: use typedi-typeorm-extensions instead
     req.shortURLsRepository = connection.getRepository(ShortURL);
     req.usersRepository = connection.getRepository(User);
     next();
   });
 
+  // TODO: add /api here
   app.use("/url", urlRouter);
   app.use("/user", userRouter);
 

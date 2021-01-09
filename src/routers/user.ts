@@ -1,9 +1,9 @@
 import { Router } from "express";
 import bcrypt from "bcrypt";
-import passport from "passport";
 import config from "config";
 import jwt from "jsonwebtoken";
 import { nanoid } from "nanoid";
+import { withAuth } from "../middlewares/withAuth";
 
 export const userRouter = Router();
 
@@ -26,7 +26,8 @@ userRouter.post("/register", async (req, res, next) => {
       email,
       username,
       password: hashedPassword,
-      admin: false
+      admin: false,
+      refreshTokens: []
     });
 
     res.status(200).json(created);
@@ -54,19 +55,30 @@ userRouter.post("/login", async (req, res, next) => {
       throw new Error("Password incorrect");
     }
 
-    // TODO: set expiration data
-    // TODO: add refresh token
-
-    const jsonWebToken = jwt.sign({ id: user.id }, config.get("jwtSecret"));
+    const jsonWebToken = jwt.sign({ id: user.id }, config.get("jwtSecret"), {
+      expiresIn: "15m"
+    });
     res.cookie("jwt", jsonWebToken);
 
     const refreshToken = nanoid();
+    await req.usersRepository.update(
+      { id: user.id },
+      {
+        refreshTokens: [
+          ...user.refreshTokens,
+          { token: refreshToken, created: Date.now() }
+        ]
+      }
+    );
     res.cookie("refreshToken", refreshToken);
 
-    return res.status(200).json({ jwt: jsonWebToken, refreshToken });
+    return res
+      .status(200)
+      .json({ jwt: jsonWebToken, refreshToken: refreshToken });
   } catch (error) {
     next(error);
   }
 });
 
 // TODO: logout
+// TODO: request new jwt with refresh token
