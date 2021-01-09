@@ -1,4 +1,5 @@
 import { Column, Entity, ObjectIdColumn } from "typeorm";
+import { RefreshToken } from "./refresh-token.type";
 
 @Entity({ name: "Users" })
 export class User {
@@ -9,7 +10,7 @@ export class User {
   admin: boolean;
 
   @Column()
-  refreshToken: string;
+  refreshTokens: RefreshToken[];
 
   @Column({ unique: true })
   email: string;
