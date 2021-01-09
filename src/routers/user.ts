@@ -3,6 +3,7 @@ import bcrypt from "bcrypt";
 import passport from "passport";
 import config from "config";
 import jwt from "jsonwebtoken";
+import { nanoid } from "nanoid";
 
 export const userRouter = Router();
 
@@ -56,9 +57,13 @@ userRouter.post("/login", async (req, res, next) => {
     // TODO: set expiration data
     // TODO: add refresh token
 
-    const token = jwt.sign({ id: user.id }, config.get("jwtSecret"));
-    res.cookie("token", token);
-    return res.status(200).json({ token });
+    const jsonWebToken = jwt.sign({ id: user.id }, config.get("jwtSecret"));
+    res.cookie("jwt", jsonWebToken);
+
+    const refreshToken = nanoid();
+    res.cookie("refreshToken", refreshToken);
+
+    return res.status(200).json({ jwt: jsonWebToken, refreshToken });
   } catch (error) {
     next(error);
   }

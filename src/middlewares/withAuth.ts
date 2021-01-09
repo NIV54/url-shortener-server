@@ -3,7 +3,7 @@ import jwt from "jsonwebtoken";
 
 export const withAuth = (req, res, next) => {
   const secret: string = config.get("jwtSecret");
-  const token = req.body.token || req.query.token || req.cookies.token;
+  const token = req.body.jwt || req.query.jwt || req.cookies.jwt;
 
   if (!token) {
     res.status(401).json({ message: "Unauthorized: No token provided" });
