@@ -8,5 +8,6 @@
     "useNewUrlParser": true,
     "entities": ["build/**/model.js"]
   },
-  "subRouteSpecialCharacter": "?"
+  "subRouteSpecialCharacter": "?",
+  "refreshTokenExpiry": "30d"
 }

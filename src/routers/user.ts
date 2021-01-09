@@ -3,9 +3,20 @@ import bcrypt from "bcrypt";
 import config from "config";
 import jwt from "jsonwebtoken";
 import { nanoid } from "nanoid";
+import ms from "ms";
+
 import { withAuth } from "../middlewares/withAuth";
+import { User } from "../db/user/model";
 
 export const userRouter = Router();
+
+function getJWT({ id }: User, res) {
+  const jsonWebToken = jwt.sign({ id }, config.get("jwtSecret"), {
+    expiresIn: "15m"
+  });
+  res.cookie("jwt", jsonWebToken);
+  return jsonWebToken;
+}
 
 userRouter.post("/register", async (req, res, next) => {
   try {
@@ -55,10 +66,7 @@ userRouter.post("/login", async (req, res, next) => {
       throw new Error("Password incorrect");
     }
 
-    const jsonWebToken = jwt.sign({ id: user.id }, config.get("jwtSecret"), {
-      expiresIn: "15m"
-    });
-    res.cookie("jwt", jsonWebToken);
+    const jsonWebToken = getJWT(user, res);
 
     const refreshToken = nanoid();
     await req.usersRepository.update(
@@ -85,4 +93,31 @@ userRouter.post("/logout", withAuth, (_req, res) => {
   res.status(200).json({ message: "You have been successfully logged out" });
 });
 
-// TODO: request new jwt with refresh token
+userRouter.post("/jwt", withAuth, async (req, res, next) => {
+  try {
+    const { refreshToken } = req.body;
+    const user = await req.usersRepository.findOne({
+      where: {
+        "refreshTokens.token": refreshToken
+      }
+    });
+    if (!user) {
+      throw new Error("Refresh token not found");
+    }
+
+    const refreshTokenCreation = user.refreshTokens.find(
+      ({ token }) => token === refreshToken
+    )!.created;
+    if (
+      refreshTokenCreation + ms(config.get<string>("refreshTokenExpiry")) <
+      Date.now()
+    ) {
+      throw new Error("Refresh token expired");
+    }
+
+    const jsonWebToken = getJWT(user, res);
+    return res.status(200).json({ jwt: jsonWebToken });
+  } catch (error) {
+    next(error);
+  }
+});
