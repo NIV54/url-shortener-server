@@ -80,5 +80,9 @@ userRouter.post("/login", async (req, res, next) => {
   }
 });
 
-// TODO: logout
+userRouter.post("/logout", withAuth, (_req, res) => {
+  res.clearCookie("jwt");
+  res.status(200).json({ message: "You have been successfully logged out" });
+});
+
 // TODO: request new jwt with refresh token
