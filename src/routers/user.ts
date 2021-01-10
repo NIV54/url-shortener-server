@@ -9,6 +9,7 @@ import * as yup from "yup";
 import { withAuth } from "../middlewares/withAuth";
 import { User } from "../db/user/model";
 import { RefreshToken } from "../db/user/refresh-token.type";
+import { CodedError } from "../utils/errors/CodedError";
 
 export const userRouter = Router();
 
@@ -64,13 +65,20 @@ userRouter.post("/register", async (req, res, next) => {
 
 userRouter.post("/login", async (req, res, next) => {
   try {
-    const { email, password } = req.body;
-    // TODO: validate
-    // TODO: add option to log in with username
+    const { email, username, password } = req.body;
 
-    const user = await req.usersRepository.findOne({
-      email
-    });
+    let user: User | undefined;
+    if (email) {
+      user = await req.usersRepository.findOne({
+        email
+      });
+    } else if (username) {
+      user = await req.usersRepository.findOne({
+        username
+      });
+    } else {
+      throw new CodedError("Username or email are required", 422);
+    }
 
     if (!user) {
       throw new Error("User does not exist");
