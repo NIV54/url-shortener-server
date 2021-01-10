@@ -8,6 +8,7 @@ declare global {
       db: Connection;
       shortURLsRepository: Repository<ShortURL>;
       usersRepository: Repository<MyUser>;
+      loggedInUser: MyUser;
     }
   }
 }
