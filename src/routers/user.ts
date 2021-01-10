@@ -41,11 +41,11 @@ userRouter.post("/register", async (req, res, next) => {
     });
 
     if (await req.usersRepository.findOne({ email })) {
-      throw new Error("Email is already in use");
+      throw new CodedError("Email is already in use", 400);
     }
 
     if (await req.usersRepository.findOne({ username })) {
-      throw new Error("Username is already taken");
+      throw new CodedError("Username is already taken", 400);
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
@@ -81,12 +81,12 @@ userRouter.post("/login", async (req, res, next) => {
     }
 
     if (!user) {
-      throw new Error("User does not exist");
+      throw new CodedError("User does not exist", 404);
     }
 
     const match = await bcrypt.compare(password, user.password);
     if (!match) {
-      throw new Error("Password incorrect");
+      throw new CodedError("Password incorrect", 401);
     }
 
     const jsonWebToken = getJWT(user, res);
@@ -143,7 +143,7 @@ userRouter.post("/jwt", withAuth, async (req, res, next) => {
       }
     });
     if (!user) {
-      throw new Error("Refresh token not found");
+      throw new CodedError("Refresh token not found", 404);
     }
 
     const { created, revoked } = user.refreshTokens.find(
@@ -151,11 +151,11 @@ userRouter.post("/jwt", withAuth, async (req, res, next) => {
     ) as RefreshToken;
 
     if (revoked) {
-      throw new Error("Refresh token has been revoked");
+      throw new CodedError("Refresh token has been revoked", 401);
     }
 
     if (created + ms(config.get<string>("refreshTokenExpiry")) < Date.now()) {
-      throw new Error("Refresh token expired");
+      throw new CodedError("Refresh token expired", 401);
     }
 
     const jsonWebToken = getJWT(user, res);

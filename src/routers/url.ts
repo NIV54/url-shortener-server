@@ -1,7 +1,8 @@
 import { Router } from "express";
 import * as yup from "yup";
-
 import { nanoid } from "nanoid";
+
+import { CodedError } from "../utils/errors/CodedError";
 
 export const urlRouter = Router();
 
@@ -33,7 +34,7 @@ urlRouter.post("/", async (req, res, next) => {
     if (alias) {
       const existing = await req.shortURLsRepository.findOne({ alias });
       if (existing) {
-        throw new Error("alias in use");
+        throw new CodedError("alias in use", 400);
       }
     } else {
       // creating a new alias until an available one is found
