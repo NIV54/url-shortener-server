@@ -7,6 +7,7 @@ import ms from "ms";
 
 import { withAuth } from "../middlewares/withAuth";
 import { User } from "../db/user/model";
+import { RefreshToken } from "../db/user/refresh-token.type";
 
 export const userRouter = Router();
 
@@ -74,7 +75,7 @@ userRouter.post("/login", async (req, res, next) => {
       {
         refreshTokens: [
           ...user.refreshTokens,
-          { token: refreshToken, created: Date.now() }
+          { token: refreshToken, created: Date.now(), revoked: false }
         ]
       }
     );
@@ -88,9 +89,27 @@ userRouter.post("/login", async (req, res, next) => {
   }
 });
 
-userRouter.post("/logout", withAuth, (_req, res) => {
-  res.clearCookie("jwt");
-  res.status(200).json({ message: "You have been successfully logged out" });
+userRouter.post("/logout", withAuth, async (req, res, next) => {
+  try {
+    res.clearCookie("jwt");
+    const { refreshToken } = req.body;
+    if (refreshToken) {
+      await req.usersRepository.update(
+        { id: req.loggedInUser.id },
+        {
+          refreshTokens: req.loggedInUser.refreshTokens.map(
+            ({ token, ...rest }) =>
+              token === refreshToken
+                ? { token, ...rest, revoked: true }
+                : { token, ...rest }
+          )
+        }
+      );
+    }
+    res.status(200).json({ message: "You have been successfully logged out" });
+  } catch (error) {
+    next(error);
+  }
 });
 
 userRouter.post("/jwt", withAuth, async (req, res, next) => {
@@ -105,13 +124,15 @@ userRouter.post("/jwt", withAuth, async (req, res, next) => {
       throw new Error("Refresh token not found");
     }
 
-    const refreshTokenCreation = user.refreshTokens.find(
+    const { created, revoked } = user.refreshTokens.find(
       ({ token }) => token === refreshToken
-    )!.created;
-    if (
-      refreshTokenCreation + ms(config.get<string>("refreshTokenExpiry")) <
-      Date.now()
-    ) {
+    ) as RefreshToken;
+
+    if (revoked) {
+      throw new Error("Refresh token has been revoked");
+    }
+
+    if (created + ms(config.get<string>("refreshTokenExpiry")) < Date.now()) {
       throw new Error("Refresh token expired");
     }
 
