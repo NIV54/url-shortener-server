@@ -4,6 +4,7 @@ import config from "config";
 import jwt from "jsonwebtoken";
 import { nanoid } from "nanoid";
 import ms from "ms";
+import * as yup from "yup";
 
 import { withAuth } from "../middlewares/withAuth";
 import { User } from "../db/user/model";
@@ -22,8 +23,21 @@ function getJWT({ id }: User, res) {
 userRouter.post("/register", async (req, res, next) => {
   try {
     const { email, username, password } = req.body;
-    // TODO: add validation
-    // TODO: second password validation
+    const schema = yup.object().shape({
+      email: yup.string().email().required(),
+      username: yup
+        .string()
+        .trim()
+        .matches(/^[^\W_]+$/i)
+        .required(),
+      password: yup.string().min(6).max(16).required()
+    });
+
+    await schema.validate({
+      email,
+      username,
+      password
+    });
 
     if (await req.usersRepository.findOne({ email })) {
       throw new Error("Email is already in use");
