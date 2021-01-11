@@ -2,6 +2,9 @@ import config from "config";
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { ObjectID } from "mongodb";
+import { Container } from "typedi";
+
+import { UserService } from "../db/user/service";
 
 interface signedUser {
   id: string;
@@ -28,8 +31,29 @@ export const withAuth = async (
       } else {
         res.status(401).json({ message: "User does not exist" });
       }
-    } catch (err) {
-      res.status(401).json({ message: "Unauthorized: Invalid token" });
+    } catch (error) {
+      const refreshToken =
+        req.body.refreshToken ||
+        req.query.refreshToken ||
+        req.cookies.refreshToken;
+      if (!refreshToken) {
+        res
+          .status(401)
+          .json({ message: "Unauthorized: Invalid/Expired token" });
+      } else {
+        try {
+          // issue new jwt if a refresh token is provided
+          const userService = Container.get(UserService);
+          const { user } = await userService.refreshJsonWebToken(
+            refreshToken,
+            res
+          );
+          req.loggedInUser = user;
+          next();
+        } catch (error) {
+          next(error);
+        }
+      }
     }
   }
 };

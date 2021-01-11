@@ -8,6 +8,7 @@ import jwt from "jsonwebtoken";
 
 import { User } from "./model";
 import { RefreshToken } from "./refresh-token.type";
+import { CodedError } from "../../utils/errors/CodedError";
 
 @Service()
 export class UserService {
@@ -31,11 +32,35 @@ export class UserService {
     return created + refreshTokenExpiry < Date.now();
   }
 
-  getJWT({ id }: User, res?: Response) {
+  getJWTAndSetCookie({ id }: User, res?: Response) {
     const jsonWebToken = jwt.sign({ id }, config.get("jwtSecret"), {
       expiresIn: "15m"
     });
     res?.cookie("jwt", jsonWebToken);
     return jsonWebToken;
+  }
+
+  async refreshJsonWebToken(refreshToken: string, res?: Response) {
+    const user = await this.getUserByRefreshToken(refreshToken);
+    if (!user) {
+      throw new CodedError("Refresh token not found", 401);
+    }
+
+    const userRefreshToken = this.getRefreshToken(
+      user,
+      refreshToken
+    ) as RefreshToken;
+
+    if (userRefreshToken.revoked) {
+      throw new CodedError("Refresh token has been revoked", 401);
+    }
+
+    if (this.isRefreshTokenValid(userRefreshToken)) {
+      throw new CodedError("Refresh token expired", 401);
+    }
+
+    const jsonWebToken = this.getJWTAndSetCookie(user, res);
+
+    return { user, jsonWebToken };
   }
 }

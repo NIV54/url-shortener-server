@@ -81,7 +81,7 @@ userRouter.post("/login", async (req, res, next) => {
       throw new CodedError("Password incorrect", 401);
     }
 
-    const jsonWebToken = userService.getJWT(user, res);
+    const jsonWebToken = userService.getJWTAndSetCookie(user, res);
 
     const refreshToken = nanoid();
     await req.usersRepository.update(
@@ -95,9 +95,7 @@ userRouter.post("/login", async (req, res, next) => {
     );
     res.cookie("refreshToken", refreshToken);
 
-    return res
-      .status(200)
-      .json({ jwt: jsonWebToken, refreshToken: refreshToken });
+    res.status(200).json({ jwt: jsonWebToken, refreshToken: refreshToken });
   } catch (error) {
     next(error);
   }
@@ -105,8 +103,11 @@ userRouter.post("/login", async (req, res, next) => {
 
 userRouter.post("/logout", withAuth, async (req, res, next) => {
   try {
-    res.clearCookie("jwt");
-    const { refreshToken } = req.body;
+    const refreshToken =
+      req.body.refreshToken ||
+      req.query.refreshToken ||
+      req.cookies.refreshToken;
+
     if (refreshToken) {
       await req.usersRepository.update(
         { id: req.loggedInUser.id },
@@ -120,37 +121,28 @@ userRouter.post("/logout", withAuth, async (req, res, next) => {
         }
       );
     }
+
+    res.clearCookie("jwt");
+    res.clearCookie("refreshToken");
     res.status(200).json({ message: "You have been successfully logged out" });
   } catch (error) {
     next(error);
   }
 });
 
-userRouter.post("/jwt", withAuth, async (req, res, next) => {
+userRouter.post("/jwt", async (req, res, next) => {
   try {
-    const { refreshToken } = req.body;
+    const refreshToken =
+      req.body.refreshToken ||
+      req.query.refreshToken ||
+      req.cookies.refreshToken;
+
     const userService = Container.get(UserService);
-
-    const user = await userService.getUserByRefreshToken(refreshToken);
-    if (!user) {
-      throw new CodedError("Refresh token not found", 404);
-    }
-
-    const userRefreshToken = userService.getRefreshToken(
-      user,
-      refreshToken
-    ) as RefreshToken;
-
-    if (userRefreshToken.revoked) {
-      throw new CodedError("Refresh token has been revoked", 401);
-    }
-
-    if (userService.isRefreshTokenValid(userRefreshToken)) {
-      throw new CodedError("Refresh token expired", 401);
-    }
-
-    const jsonWebToken = userService.getJWT(user, res);
-    return res.status(200).json({ jwt: jsonWebToken });
+    const { jsonWebToken } = await userService.refreshJsonWebToken(
+      refreshToken,
+      res
+    );
+    res.status(200).json({ jwt: jsonWebToken });
   } catch (error) {
     next(error);
   }
