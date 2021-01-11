@@ -1,4 +1,5 @@
 import config from "config";
+import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
 import { ObjectID } from "mongodb";
 
@@ -6,18 +7,27 @@ interface signedUser {
   id: string;
 }
 
-export const withAuth = async (req, res, next) => {
+export const withAuth = async (
+  req: Request,
+  res: Response,
+  next: NextFunction
+) => {
   const secret: string = config.get("jwtSecret");
-  const token = req.body.jwt || req.query.jwt || req.cookies.jwt;
+  let jsonWebToken = req.body.jwt || req.query.jwt || req.cookies.jwt;
 
-  if (!token) {
+  if (!jsonWebToken) {
     res.status(401).json({ message: "Unauthorized: No token provided" });
   } else {
     try {
-      const user: signedUser = jwt.verify(token, secret) as signedUser;
-      const _id = new ObjectID(user.id);
-      req.loggedInUser = await req.usersRepository.findOne({ _id });
-      next();
+      const { id } = jwt.verify(jsonWebToken, secret) as signedUser;
+      const _id = new ObjectID(id);
+      const user = await req.usersRepository.findOne({ _id } as any); // typeorm does not like _id as key, but it works
+      if (user) {
+        req.loggedInUser = user;
+        next();
+      } else {
+        res.status(401).json({ message: "User does not exist" });
+      }
     } catch (err) {
       res.status(401).json({ message: "Unauthorized: Invalid token" });
     }
