@@ -1,25 +1,16 @@
 import { Router } from "express";
 import bcrypt from "bcrypt";
-import config from "config";
-import jwt from "jsonwebtoken";
 import { nanoid } from "nanoid";
-import ms from "ms";
 import * as yup from "yup";
+import { Container } from "typedi";
 
 import { withAuth } from "../middlewares/withAuth";
 import { User } from "../db/user/model";
 import { RefreshToken } from "../db/user/refresh-token.type";
 import { CodedError } from "../utils/errors/CodedError";
+import { UserService } from "../db/user/service";
 
 export const userRouter = Router();
-
-function getJWT({ id }: User, res) {
-  const jsonWebToken = jwt.sign({ id }, config.get("jwtSecret"), {
-    expiresIn: "15m"
-  });
-  res.cookie("jwt", jsonWebToken);
-  return jsonWebToken;
-}
 
 userRouter.post("/register", async (req, res, next) => {
   try {
@@ -66,6 +57,7 @@ userRouter.post("/register", async (req, res, next) => {
 userRouter.post("/login", async (req, res, next) => {
   try {
     const { email, username, password } = req.body;
+    const userService = Container.get(UserService);
 
     let user: User | undefined;
     if (email) {
@@ -89,7 +81,7 @@ userRouter.post("/login", async (req, res, next) => {
       throw new CodedError("Password incorrect", 401);
     }
 
-    const jsonWebToken = getJWT(user, res);
+    const jsonWebToken = userService.getJWT(user, res);
 
     const refreshToken = nanoid();
     await req.usersRepository.update(
@@ -137,28 +129,27 @@ userRouter.post("/logout", withAuth, async (req, res, next) => {
 userRouter.post("/jwt", withAuth, async (req, res, next) => {
   try {
     const { refreshToken } = req.body;
-    const user = await req.usersRepository.findOne({
-      where: {
-        "refreshTokens.token": refreshToken
-      }
-    });
+    const userService = Container.get(UserService);
+
+    const user = await userService.getUserByRefreshToken(refreshToken);
     if (!user) {
       throw new CodedError("Refresh token not found", 404);
     }
 
-    const { created, revoked } = user.refreshTokens.find(
-      ({ token }) => token === refreshToken
+    const userRefreshToken = userService.getRefreshToken(
+      user,
+      refreshToken
     ) as RefreshToken;
 
-    if (revoked) {
+    if (userRefreshToken.revoked) {
       throw new CodedError("Refresh token has been revoked", 401);
     }
 
-    if (created + ms(config.get<string>("refreshTokenExpiry")) < Date.now()) {
+    if (userService.isRefreshTokenValid(userRefreshToken)) {
       throw new CodedError("Refresh token expired", 401);
     }
 
-    const jsonWebToken = getJWT(user, res);
+    const jsonWebToken = userService.getJWT(user, res);
     return res.status(200).json({ jwt: jsonWebToken });
   } catch (error) {
     next(error);
