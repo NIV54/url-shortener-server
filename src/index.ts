@@ -4,17 +4,26 @@ import express from "express";
 import helmet from "helmet";
 import config from "config";
 import cors from "cors";
-import { Connection } from "typeorm";
+import { Connection, useContainer } from "typeorm";
 import { Container } from "typedi";
 import cookieParser from "cookie-parser";
 
-import { connectToDB } from "./db/initializer";
+import { DbInitializer } from "./db/initializer";
 import { urlRouter } from "./routers/url";
 import { ShortURL } from "./db/short-url/model";
 import { User } from "./db/user/model";
 import { userRouter } from "./routers/user";
 
 const start = async () => {
+  //#region setup
+  //#region db
+  useContainer(Container);
+
+  const dbInitializer = Container.get(DbInitializer);
+  await dbInitializer.initialize();
+  //#endregion db
+
+  //#region app
   const app = express();
 
   app.use(helmet());
@@ -23,8 +32,8 @@ const start = async () => {
 
   app.use(express.urlencoded({ extended: true }));
   app.use(cookieParser());
-
-  await connectToDB();
+  //#endregion app
+  //#endregion setup
 
   app.use((req, _res, next) => {
     const connection = Container.get<Connection>("connection");

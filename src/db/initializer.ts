@@ -1,24 +1,20 @@
 import { createConnection, ConnectionOptions } from "typeorm";
 import config from "config";
-import { Container } from "typedi";
+import { Container, Service } from "typedi";
 
-class DbInitializer {
+import { Initializer } from "../utils/types/initializer.type";
+
+@Service()
+export class DbInitializer implements Initializer {
   private connectionOptions: ConnectionOptions;
 
   constructor() {
     this.connectionOptions = { ...config.get("db") };
   }
 
-  connect = async () => {
+  initialize = async () => {
     const connection = await createConnection(this.connectionOptions);
     console.log("Connected to DB");
-    return connection;
+    Container.set("connection", connection);
   };
 }
-
-export const connectToDB = async () => {
-  const dbInitializer = new DbInitializer();
-  const connection = await dbInitializer.connect();
-
-  Container.set("connection", connection);
-};
