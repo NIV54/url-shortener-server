@@ -9,6 +9,7 @@ export class DbInitializer implements Initializer {
   private connectionOptions: ConnectionOptions;
 
   constructor() {
+    // TODO: treat differently if process.env.NODE_ENV === 'production'
     this.connectionOptions = { ...config.get("db") };
   }
 

@@ -23,6 +23,7 @@ export const withAuth = async (
   } else {
     try {
       const { id } = jwt.verify(jsonWebToken, secret) as signedUser;
+      // TODO: change to not be mongo like
       const _id = new ObjectID(id);
       const user = await req.usersRepository.findOne({ _id } as any); // typeorm does not like _id as key, but it works
       if (user) {

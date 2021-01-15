@@ -16,6 +16,7 @@ export class UserService {
   private repository: Repository<User>;
 
   getUserByRefreshToken(refreshToken: string) {
+    // TODO: change to relational
     return this.repository.findOne({
       where: {
         "refreshTokens.token": refreshToken
@@ -24,6 +25,7 @@ export class UserService {
   }
 
   getRefreshToken(user: User, refreshToken: string) {
+    // TODO: change to relational if needed
     return user.refreshTokens.find(({ token }) => token === refreshToken);
   }
 

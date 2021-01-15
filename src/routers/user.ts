@@ -84,6 +84,7 @@ userRouter.post("/login", async (req, res, next) => {
     const jsonWebToken = userService.getJWTAndSetCookie(user, res);
 
     const refreshToken = nanoid();
+    // TODO: change to relational
     await req.usersRepository.update(
       { id: user.id },
       {
@@ -109,6 +110,7 @@ userRouter.post("/logout", withAuth, async (req, res, next) => {
       req.cookies.refreshToken;
 
     if (refreshToken) {
+      // TODO: change to relational
       await req.usersRepository.update(
         { id: req.loggedInUser.id },
         {
