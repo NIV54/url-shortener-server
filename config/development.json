@@ -1,8 +1,8 @@
 {
   "db": {
-    "type": "mongodb",
+    "type": "postgress",
     "host": "localhost",
-    "port": 27017,
+    "port": 5432,
     "database": "url-shortener-dev"
   }
 }
