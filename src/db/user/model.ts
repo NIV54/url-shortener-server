@@ -1,4 +1,4 @@
-import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
+import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 import { RefreshToken } from "../refresh-token/model";
 
 @Entity({ name: "Users" })
@@ -9,8 +9,9 @@ export class User {
   @Column()
   admin: boolean;
 
-  // TODO: add relationship
-  @Column()
+  @OneToMany(type => RefreshToken, refreshToken => refreshToken.user, {
+    eager: true
+  })
   refreshTokens: RefreshToken[];
 
   @Column({ unique: true })
