@@ -6,7 +6,8 @@
     "logger": "advanced-console",
     "useUnifiedTopology": true,
     "useNewUrlParser": true,
-    "entities": ["build/**/model.js"]
+    "entities": ["build/**/model.js"],
+    "cache": true
   },
   "subRouteSpecialCharacter": "?",
   "refreshTokenExpiry": "30d"
