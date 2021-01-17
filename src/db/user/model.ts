@@ -1,10 +1,9 @@
-import { Column, Entity, ObjectIdColumn } from "typeorm";
+import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
 import { RefreshToken } from "./refresh-token.type";
 
 @Entity({ name: "Users" })
 export class User {
-  // TODO: change to not be mongo like
-  @ObjectIdColumn()
+  @PrimaryGeneratedColumn()
   id: string;
 
   @Column()

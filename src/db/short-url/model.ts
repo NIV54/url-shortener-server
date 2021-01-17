@@ -1,9 +1,13 @@
-import { Entity, Column, UpdateDateColumn, ObjectIdColumn } from "typeorm";
+import {
+  Entity,
+  Column,
+  UpdateDateColumn,
+  PrimaryGeneratedColumn
+} from "typeorm";
 
 @Entity({ name: "ShortURLs" })
 export class ShortURL {
-  // TODO: change to not be mongo like
-  @ObjectIdColumn()
+  @PrimaryGeneratedColumn()
   id: string;
 
   @Column()

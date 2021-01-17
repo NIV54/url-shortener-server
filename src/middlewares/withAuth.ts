@@ -6,7 +6,7 @@ import { Container } from "typedi";
 
 import { UserService } from "../db/user/service";
 
-interface signedUser {
+interface SignedUser {
   id: string;
 }
 
@@ -22,10 +22,8 @@ export const withAuth = async (
     res.status(401).json({ message: "Unauthorized: No token provided" });
   } else {
     try {
-      const { id } = jwt.verify(jsonWebToken, secret) as signedUser;
-      // TODO: change to not be mongo like
-      const _id = new ObjectID(id);
-      const user = await req.usersRepository.findOne({ _id } as any); // typeorm does not like _id as key, but it works
+      const { id } = jwt.verify(jsonWebToken, secret) as SignedUser;
+      const user = await req.usersRepository.findOne({ id });
       if (user) {
         req.loggedInUser = user;
         next();
