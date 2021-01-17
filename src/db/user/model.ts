@@ -1,4 +1,6 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
+
+import { Lazy } from "../../utils/types/lazy.type";
 import { RefreshToken } from "../refresh-token/model";
 
 @Entity({ name: "Users" })
@@ -10,10 +12,11 @@ export class User {
   admin: boolean;
 
   @OneToMany(type => RefreshToken, refreshToken => refreshToken.user, {
-    eager: true,
+    // TODO: this needs to be eager (loaded anyway for withAuth middleware), but eager does not work well
+    lazy: true,
     cascade: true
   })
-  refreshTokens: RefreshToken[];
+  refreshTokens: Lazy<RefreshToken[]>;
 
   @Column({ unique: true })
   email: string;

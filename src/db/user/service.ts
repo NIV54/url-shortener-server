@@ -23,13 +23,14 @@ export class UserService {
     return (refreshTokenFromDb && refreshTokenFromDb.user) || null;
   }
 
-  private getRefreshToken(user: User, refreshToken: string) {
-    return user.refreshTokens.find(({ token }) => token === refreshToken);
+  private async getRefreshToken(user: User, refreshToken: string) {
+    const refreshTokens = await user.refreshTokens;
+    return refreshTokens.find(({ token }) => token === refreshToken);
   }
 
   private isRefreshTokenValid({ created }: RefreshToken) {
     const refreshTokenExpiry = ms(config.get<string>("refreshTokenExpiry"));
-    return created + refreshTokenExpiry < Date.now();
+    return created.getTime() + refreshTokenExpiry < Date.now();
   }
 
   getJWTAndSetCookie({ id }: User, res?: Response) {
@@ -46,10 +47,10 @@ export class UserService {
       throw new CodedError("Refresh token not found", 401);
     }
 
-    const userRefreshToken = this.getRefreshToken(
+    const userRefreshToken = (await this.getRefreshToken(
       user,
       refreshToken
-    ) as RefreshToken;
+    )) as RefreshToken;
 
     if (userRefreshToken.revoked) {
       throw new CodedError("Refresh token has been revoked", 401);
@@ -65,7 +66,7 @@ export class UserService {
   }
 
   async revokeRefreshToken(user: User, refreshToken: string) {
-    const refreshTokenToRevoke = this.getRefreshToken(user, refreshToken);
+    const refreshTokenToRevoke = await this.getRefreshToken(user, refreshToken);
     if (refreshTokenToRevoke) {
       await this.refreshTokenRepository.update(refreshTokenToRevoke, {
         revoked: true
@@ -76,7 +77,7 @@ export class UserService {
   createRefreshToken(user: User) {
     const refreshToken = this.refreshTokenRepository.create({
       token: nanoid(),
-      created: Date.now(),
+      created: new Date(),
       revoked: false,
       user
     });

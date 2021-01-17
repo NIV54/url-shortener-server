@@ -4,11 +4,15 @@ import { User } from "../user/model";
 @Entity({ name: "RefreshTokens" })
 export class RefreshToken {
   @PrimaryGeneratedColumn()
-  token: string;
+  id: string;
 
   @Column()
-  created: number;
+  token: string;
 
+  @Column({ type: "timestamptz" })
+  created: Date;
+
+  // TODO: maybe just delete the token entirely
   @Column()
   revoked: boolean;
 
