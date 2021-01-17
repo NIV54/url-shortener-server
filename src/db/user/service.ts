@@ -7,7 +7,7 @@ import { InjectRepository } from "typeorm-typedi-extensions";
 import jwt from "jsonwebtoken";
 
 import { User } from "./model";
-import { RefreshToken } from "./refresh-token.type";
+import { RefreshToken } from "../refresh-token/model";
 import { CodedError } from "../../utils/errors/CodedError";
 
 @Service()

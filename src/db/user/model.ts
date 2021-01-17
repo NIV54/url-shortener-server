@@ -1,5 +1,5 @@
 import { Column, Entity, PrimaryGeneratedColumn } from "typeorm";
-import { RefreshToken } from "./refresh-token.type";
+import { RefreshToken } from "../refresh-token/model";
 
 @Entity({ name: "Users" })
 export class User {

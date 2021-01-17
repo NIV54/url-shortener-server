@@ -6,7 +6,6 @@ import { Container } from "typedi";
 
 import { withAuth } from "../middlewares/withAuth";
 import { User } from "../db/user/model";
-import { RefreshToken } from "../db/user/refresh-token.type";
 import { CodedError } from "../utils/errors/CodedError";
 import { UserService } from "../db/user/service";
 
