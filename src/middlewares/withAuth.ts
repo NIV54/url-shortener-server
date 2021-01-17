@@ -1,7 +1,6 @@
 import config from "config";
 import { Request, Response, NextFunction } from "express";
 import jwt from "jsonwebtoken";
-import { ObjectID } from "mongodb";
 import { Container } from "typedi";
 
 import { UserService } from "../db/user/service";
