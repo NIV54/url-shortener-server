@@ -1,11 +1,9 @@
 {
   "db": {
-    "type": "mongodb",
-    "host": "url-shortener-shard-00-00.1dolf.mongodb.net:27017,url-shortener-shard-00-01.1dolf.mongodb.net:27017,url-shortener-shard-00-02.1dolf.mongodb.net:27017",
-    "port": 27017,
-    "database": "url-shortener",
-    "replicaSet": "atlas-1c7vk3-shard-0",
-    "ssl": true,
-    "authSource": "admin"
+    "type": "postgres",
+    "host": "ec2-54-246-115-40.eu-west-1.compute.amazonaws.com",
+    "port": 5432,
+    "database": "d95b6epdbjln9t",
+    "ssl": { "rejectUnauthorized": false }
   }
 }
