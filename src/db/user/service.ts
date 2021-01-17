@@ -5,6 +5,7 @@ import { Service } from "typedi";
 import { Repository } from "typeorm";
 import { InjectRepository } from "typeorm-typedi-extensions";
 import jwt from "jsonwebtoken";
+import { nanoid } from "nanoid";
 
 import { User } from "./model";
 import { RefreshToken } from "../refresh-token/model";
@@ -12,24 +13,21 @@ import { CodedError } from "../../utils/errors/CodedError";
 
 @Service()
 export class UserService {
-  @InjectRepository(User)
-  private repository: Repository<User>;
+  @InjectRepository(RefreshToken)
+  private refreshTokenRepository: Repository<RefreshToken>;
 
-  getUserByRefreshToken(refreshToken: string) {
-    // TODO: change to relational
-    return this.repository.findOne({
-      where: {
-        "refreshTokens.token": refreshToken
-      }
+  private async getUserByRefreshToken(refreshToken: string) {
+    const refreshTokenFromDb = await this.refreshTokenRepository.findOne({
+      token: refreshToken
     });
+    return (refreshTokenFromDb && refreshTokenFromDb.user) || null;
   }
 
-  getRefreshToken(user: User, refreshToken: string) {
-    // TODO: change to relational if needed
+  private getRefreshToken(user: User, refreshToken: string) {
     return user.refreshTokens.find(({ token }) => token === refreshToken);
   }
 
-  isRefreshTokenValid({ created }: RefreshToken) {
+  private isRefreshTokenValid({ created }: RefreshToken) {
     const refreshTokenExpiry = ms(config.get<string>("refreshTokenExpiry"));
     return created + refreshTokenExpiry < Date.now();
   }
@@ -64,5 +62,25 @@ export class UserService {
     const jsonWebToken = this.getJWTAndSetCookie(user, res);
 
     return { user, jsonWebToken };
+  }
+
+  async revokeRefreshToken(user: User, refreshToken: string) {
+    const refreshTokenToRevoke = this.getRefreshToken(user, refreshToken);
+    if (refreshTokenToRevoke) {
+      await this.refreshTokenRepository.update(refreshTokenToRevoke, {
+        revoked: true
+      });
+    }
+  }
+
+  createRefreshToken(user: User) {
+    const refreshToken = this.refreshTokenRepository.create({
+      token: nanoid(),
+      created: Date.now(),
+      revoked: false,
+      user
+    });
+
+    return this.refreshTokenRepository.save(refreshToken);
   }
 }

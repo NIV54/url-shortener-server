@@ -10,7 +10,8 @@ export class User {
   admin: boolean;
 
   @OneToMany(type => RefreshToken, refreshToken => refreshToken.user, {
-    eager: true
+    eager: true,
+    cascade: true
   })
   refreshTokens: RefreshToken[];
 

@@ -82,17 +82,7 @@ userRouter.post("/login", async (req, res, next) => {
 
     const jsonWebToken = userService.getJWTAndSetCookie(user, res);
 
-    const refreshToken = nanoid();
-    // TODO: change to relational
-    await req.usersRepository.update(
-      { id: user.id },
-      {
-        refreshTokens: [
-          ...user.refreshTokens,
-          { token: refreshToken, created: Date.now(), revoked: false }
-        ]
-      }
-    );
+    const { token: refreshToken } = await userService.createRefreshToken(user);
     res.cookie("refreshToken", refreshToken);
 
     res.status(200).json({ jwt: jsonWebToken, refreshToken: refreshToken });
@@ -109,20 +99,9 @@ userRouter.post("/logout", withAuth, async (req, res, next) => {
       req.cookies.refreshToken;
 
     if (refreshToken) {
-      // TODO: change to relational
-      await req.usersRepository.update(
-        { id: req.loggedInUser.id },
-        {
-          refreshTokens: req.loggedInUser.refreshTokens.map(
-            ({ token, ...rest }) =>
-              token === refreshToken
-                ? { token, ...rest, revoked: true }
-                : { token, ...rest }
-          )
-        }
-      );
+      const userService = Container.get(UserService);
+      await userService.revokeRefreshToken(req.loggedInUser, refreshToken);
     }
-
     res.clearCookie("jwt");
     res.clearCookie("refreshToken");
     res.status(200).json({ message: "You have been successfully logged out" });
