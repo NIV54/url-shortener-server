@@ -55,21 +55,16 @@ userRouter.post("/register", async (req, res, next) => {
 
 userRouter.post("/login", async (req, res, next) => {
   try {
-    const { email, username, password } = req.body;
+    const { usernameOrEmail, password } = req.body;
     const userService = Container.get(UserService);
 
-    let user: User | undefined;
-    if (email) {
-      user = await req.usersRepository.findOne({
-        email
-      });
-    } else if (username) {
-      user = await req.usersRepository.findOne({
-        username
-      });
-    } else {
+    if (!usernameOrEmail) {
       throw new CodedError("Username or email are required", 422);
     }
+
+    const user = await req.usersRepository.findOne({
+      where: [{ email: usernameOrEmail }, { username: usernameOrEmail }]
+    });
 
     if (!user) {
       throw new CodedError("User does not exist", 404);
