@@ -1,15 +1,16 @@
 import config from "config";
 import { Response } from "express";
+import jwt from "jsonwebtoken";
 import ms from "ms";
+import { nanoid } from "nanoid";
 import { Service } from "typedi";
 import { Repository } from "typeorm";
 import { InjectRepository } from "typeorm-typedi-extensions";
-import jwt from "jsonwebtoken";
-import { nanoid } from "nanoid";
+
+import { CodedError } from "../../utils/errors/CodedError";
+import { RefreshToken } from "../refresh-token/model";
 
 import { User } from "./model";
-import { RefreshToken } from "../refresh-token/model";
-import { CodedError } from "../../utils/errors/CodedError";
 
 @Service()
 export class UserService {

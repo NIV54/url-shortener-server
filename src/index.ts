@@ -1,17 +1,17 @@
 import "reflect-metadata";
 
+import config from "config";
+import cookieParser from "cookie-parser";
+import cors from "cors";
 import express from "express";
 import helmet from "helmet";
-import config from "config";
-import cors from "cors";
-import { Connection, useContainer } from "typeorm";
 import { Container } from "typedi";
-import cookieParser from "cookie-parser";
+import { Connection, useContainer } from "typeorm";
 
 import { DbInitializer } from "./db/initializer";
-import { urlRouter } from "./routers/url";
 import { ShortURL } from "./db/short-url/model";
 import { User } from "./db/user/model";
+import { urlRouter } from "./routers/url";
 import { userRouter } from "./routers/user";
 
 const start = async () => {

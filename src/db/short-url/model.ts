@@ -1,9 +1,4 @@
-import {
-  Entity,
-  Column,
-  UpdateDateColumn,
-  PrimaryGeneratedColumn
-} from "typeorm";
+import { Column, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
 @Entity({ name: "ShortURLs" })
 export class ShortURL {

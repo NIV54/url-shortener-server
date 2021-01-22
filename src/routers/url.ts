@@ -1,6 +1,6 @@
 import { Router } from "express";
-import * as yup from "yup";
 import { nanoid } from "nanoid";
+import * as yup from "yup";
 
 import { CodedError } from "../utils/errors/CodedError";
 

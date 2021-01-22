@@ -1,13 +1,11 @@
-import { Router } from "express";
 import bcrypt from "bcrypt";
-import { nanoid } from "nanoid";
-import * as yup from "yup";
+import { Router } from "express";
 import { Container } from "typedi";
+import * as yup from "yup";
 
-import { withAuth } from "../middlewares/withAuth";
-import { User } from "../db/user/model";
-import { CodedError } from "../utils/errors/CodedError";
 import { UserService } from "../db/user/service";
+import { withAuth } from "../middlewares/withAuth";
+import { CodedError } from "../utils/errors/CodedError";
 
 export const userRouter = Router();
 

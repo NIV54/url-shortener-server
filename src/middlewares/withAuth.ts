@@ -1,5 +1,5 @@
 import config from "config";
-import { Request, Response, NextFunction } from "express";
+import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import { Container } from "typedi";
 
