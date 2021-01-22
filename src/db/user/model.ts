@@ -2,6 +2,7 @@ import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
 import { Lazy } from "../../utils/types/lazy.type";
 import { RefreshToken } from "../refresh-token/model";
+import { ShortURL } from "../short-url/model";
 
 @Entity({ name: "Users" })
 export class User {
@@ -26,4 +27,11 @@ export class User {
 
   @Column()
   password: string;
+
+  @OneToMany(type => ShortURL, shortUrl => shortUrl.user, {
+    lazy: true,
+    cascade: true,
+    onDelete: "CASCADE"
+  })
+  shortUrls: Lazy<ShortURL[]>;
 }

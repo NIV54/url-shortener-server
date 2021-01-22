@@ -1,4 +1,7 @@
-import { Column, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+
+import { Lazy } from "../../utils/types/lazy.type";
+import { User } from "../user/model";
 
 @Entity({ name: "ShortURLs" })
 export class ShortURL {
@@ -13,4 +16,7 @@ export class ShortURL {
 
   @UpdateDateColumn()
   lastUpdated: Date;
+
+  @ManyToOne(type => User, user => user.shortUrls, { lazy: true })
+  user: Lazy<User>;
 }
