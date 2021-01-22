@@ -4,7 +4,7 @@ import { Container } from "typedi";
 import * as yup from "yup";
 
 import { UserService } from "../db/user/service";
-import { withAuth } from "../middlewares/withAuth";
+import { withAuth } from "../middlewares/with-auth";
 import { CodedError } from "../utils/errors/CodedError";
 
 export const userRouter = Router();
@@ -87,9 +87,7 @@ userRouter.post("/login", async (req, res, next) => {
 userRouter.post("/logout", withAuth, async (req, res, next) => {
   try {
     const refreshToken =
-      req.body.refreshToken ||
-      req.query.refreshToken ||
-      req.cookies.refreshToken;
+      req.body.refreshToken || req.query.refreshToken || req.cookies.refreshToken;
 
     if (refreshToken) {
       const userService = Container.get(UserService);
@@ -106,15 +104,10 @@ userRouter.post("/logout", withAuth, async (req, res, next) => {
 userRouter.post("/jwt", async (req, res, next) => {
   try {
     const refreshToken =
-      req.body.refreshToken ||
-      req.query.refreshToken ||
-      req.cookies.refreshToken;
+      req.body.refreshToken || req.query.refreshToken || req.cookies.refreshToken;
 
     const userService = Container.get(UserService);
-    const { jsonWebToken } = await userService.refreshJsonWebToken(
-      refreshToken,
-      res
-    );
+    const { jsonWebToken } = await userService.refreshJsonWebToken(refreshToken, res);
     res.status(200).json({ jwt: jsonWebToken });
   } catch (error) {
     next(error);

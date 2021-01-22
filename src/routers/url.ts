@@ -4,7 +4,7 @@ import { Container } from "typedi";
 import * as yup from "yup";
 
 import { ShortURLService } from "../db/short-url/service";
-import { withAuth } from "../middlewares/withAuth";
+import { withAuth } from "../middlewares/with-auth";
 import { CodedError } from "../utils/errors/CodedError";
 
 export const urlRouter = Router();
