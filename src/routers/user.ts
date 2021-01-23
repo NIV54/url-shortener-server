@@ -1,5 +1,7 @@
 import bcrypt from "bcrypt";
+import config from "config";
 import { Router } from "express";
+import ms from "ms";
 import { Container } from "typedi";
 import * as yup from "yup";
 
@@ -77,7 +79,12 @@ userRouter.post("/login", async (req, res, next) => {
     const jsonWebToken = userService.getJWTAndSetCookie(user, res);
 
     const { token: refreshToken } = await userService.createRefreshToken(user);
-    res.cookie("refreshToken", refreshToken, cookieOptions);
+    const refreshTokenExpiry = ms(config.get<string>("refreshTokenExpiry"));
+
+    res.cookie("refreshToken", refreshToken, {
+      ...cookieOptions,
+      expires: new Date(Date.now() + refreshTokenExpiry)
+    });
 
     res.status(200).json({ jwt: jsonWebToken, refreshToken: refreshToken });
   } catch (error) {
