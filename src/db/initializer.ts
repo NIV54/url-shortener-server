@@ -2,7 +2,7 @@ import config from "config";
 import { Container, Service } from "typedi";
 import { ConnectionOptions, createConnection } from "typeorm";
 
-import { Initializer } from "../utils/types/initializer.type";
+import { Initializer } from "../common/types/initializer.type";
 
 @Service()
 export class DbInitializer implements Initializer {

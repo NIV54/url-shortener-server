@@ -1,6 +1,6 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 
-import { Lazy } from "../../utils/types/lazy.type";
+import { Lazy } from "../../common/types/lazy.type";
 import { User } from "../user/model";
 
 @Entity({ name: "ShortURLs" })

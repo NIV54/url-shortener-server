@@ -1,6 +1,6 @@
 import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from "typeorm";
 
-import { Lazy } from "../../utils/types/lazy.type";
+import { Lazy } from "../../common/types/lazy.type";
 import { RefreshToken } from "../refresh-token/model";
 import { ShortURL } from "../short-url/model";
 
