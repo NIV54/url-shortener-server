@@ -7,6 +7,7 @@ import { Service } from "typedi";
 import { Repository } from "typeorm";
 import { InjectRepository } from "typeorm-typedi-extensions";
 
+import { cookieOptions } from "../../common/cookie-options";
 import { CodedError } from "../../utils/errors/CodedError";
 import { RefreshToken } from "../refresh-token/model";
 
@@ -38,7 +39,7 @@ export class UserService {
     const jsonWebToken = jwt.sign({ id }, config.get("jwtSecret"), {
       expiresIn: "15m"
     });
-    res?.cookie("jwt", jsonWebToken);
+    res?.cookie("jwt", jsonWebToken, cookieOptions);
     return jsonWebToken;
   }
 

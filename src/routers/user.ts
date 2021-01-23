@@ -3,6 +3,7 @@ import { Router } from "express";
 import { Container } from "typedi";
 import * as yup from "yup";
 
+import { cookieOptions } from "../common/cookie-options";
 import { UserService } from "../db/user/service";
 import { withAuth } from "../middlewares/with-auth";
 import { CodedError } from "../utils/errors/CodedError";
@@ -76,7 +77,7 @@ userRouter.post("/login", async (req, res, next) => {
     const jsonWebToken = userService.getJWTAndSetCookie(user, res);
 
     const { token: refreshToken } = await userService.createRefreshToken(user);
-    res.cookie("refreshToken", refreshToken);
+    res.cookie("refreshToken", refreshToken, cookieOptions);
 
     res.status(200).json({ jwt: jsonWebToken, refreshToken: refreshToken });
   } catch (error) {
