@@ -13,7 +13,6 @@ export class User {
   admin: boolean;
 
   @OneToMany(type => RefreshToken, refreshToken => refreshToken.user, {
-    // TODO: this needs to be eager (loaded anyway for withAuth middleware), but eager does not work well
     lazy: true,
     cascade: true
   })

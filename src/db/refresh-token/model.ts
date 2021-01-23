@@ -17,6 +17,6 @@ export class RefreshToken {
   @Column()
   revoked: boolean;
 
-  @ManyToOne(type => User, user => user.refreshTokens, { lazy: true })
+  @ManyToOne(type => User, user => user.refreshTokens, { eager: true })
   user: User;
 }

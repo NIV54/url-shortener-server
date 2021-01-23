@@ -21,7 +21,7 @@ export class UserService {
     const refreshTokenFromDb = await this.refreshTokenRepository.findOne({
       token: refreshToken
     });
-    return (refreshTokenFromDb && refreshTokenFromDb.user) || null;
+    return refreshTokenFromDb?.user || null;
   }
 
   private async getRefreshToken(user: User, refreshToken: string) {
@@ -48,10 +48,7 @@ export class UserService {
       throw new CodedError("Refresh token not found", 401);
     }
 
-    const userRefreshToken = (await this.getRefreshToken(
-      user,
-      refreshToken
-    )) as RefreshToken;
+    const userRefreshToken = (await this.getRefreshToken(user, refreshToken)) as RefreshToken;
 
     if (userRefreshToken.revoked) {
       throw new CodedError("Refresh token has been revoked", 401);
