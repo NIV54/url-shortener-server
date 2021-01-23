@@ -53,11 +53,9 @@ const start = async () => {
     const { alias } = req.params;
     const shortURL = await req.shortURLsRepository.findOne({ alias });
     if (shortURL) {
-      const subRouteIndex = req.url.indexOf(
-        config.get("subRouteSpecialCharacter")
-      );
-      const subRoute =
-        subRouteIndex !== -1 ? req.url.slice(subRouteIndex + 1) : "";
+      // TODO: refactor this to work with ? or / dynamically
+      const subRouteIndex = req.url.indexOf(config.get("subRouteSpecialCharacter"));
+      const subRoute = subRouteIndex !== -1 ? req.url.slice(subRouteIndex + 1) : "";
       return res.redirect(`${shortURL.url}/${subRoute}`);
     }
 
@@ -65,8 +63,8 @@ const start = async () => {
     return res.redirect(config.get("frontendUrl") + `?alias=${alias}`);
   });
 
-  app.use((error, _req, res, _next) => {
-    res.status(error.status || 500).json({ message: error.message });
+  app.use(({ status, message, code }, _req, res, _next) => {
+    res.status(status || 500).json({ message, code });
   });
 
   const port = process.env.PORT || config.get("port");
