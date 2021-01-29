@@ -37,7 +37,7 @@ export class UserService {
 
   getJWTAndSetCookie({ id }: User, res?: Response) {
     const jsonWebToken = jwt.sign({ id }, config.get("jwtSecret"), {
-      expiresIn: "15m"
+      expiresIn: config.get<string>("jwtExpiry")
     });
     res?.cookie("jwt", jsonWebToken, cookieOptions);
     return jsonWebToken;

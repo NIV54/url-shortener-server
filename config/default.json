@@ -10,5 +10,6 @@
     "cache": true
   },
   "subRouteSpecialCharacter": "?",
+  "jwtExpiry": "15m",
   "refreshTokenExpiry": "30d"
 }
