@@ -86,7 +86,9 @@ userRouter.post("/login", async (req, res, next) => {
       expires: new Date(Date.now() + refreshTokenExpiry)
     });
 
-    res.status(200).json({ jwt: jsonWebToken, refreshToken: refreshToken });
+    res
+      .status(200)
+      .json({ jwt: jsonWebToken, refreshToken: refreshToken, user: { username: user.username } });
   } catch (error) {
     next(error);
   }
