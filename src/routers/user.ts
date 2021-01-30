@@ -105,7 +105,7 @@ userRouter.post("/logout", withAuth, async (req, res, next) => {
     }
     res.clearCookie("jwt");
     res.clearCookie("refreshToken");
-    res.status(200).json({ message: "You have been successfully logged out" });
+    res.sendStatus(200);
   } catch (error) {
     next(error);
   }
