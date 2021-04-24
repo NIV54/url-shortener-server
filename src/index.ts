@@ -42,6 +42,10 @@ const start = async () => {
     next();
   });
 
+  app.get("/api/keep-alive", (_req, res) => {
+    res.send("Staying alive, staying alive");
+  });
+
   app.use("/api/url", urlRouter);
   app.use("/api/user", userRouter);
 
