@@ -123,3 +123,8 @@ userRouter.post("/jwt", async (req, res, next) => {
     next(error);
   }
 });
+
+userRouter.post("/", withAuth, async (req, res) => {
+  const { password, ...user } = req.loggedInUser;
+  res.json({ user: user });
+});
