@@ -126,5 +126,5 @@ userRouter.post("/jwt", async (req, res, next) => {
 
 userRouter.post("/", withAuth, async (req, res) => {
   const { password, ...user } = req.loggedInUser;
-  res.json({ user: user });
+  res.json({ user });
 });
