@@ -1,21 +1,12 @@
 import { Router } from "express";
 import { nanoid } from "nanoid";
 import { Container } from "typedi";
-import * as yup from "yup";
 
 import { ShortURLService } from "../db/short-url/service";
 import { withAuth } from "../middlewares/with-auth";
 import { CodedError } from "../utils/errors/CodedError";
 
 export const urlRouter = Router();
-
-const schema = yup.object().shape({
-  alias: yup
-    .string()
-    .trim()
-    .matches(/^[\w\-]+$/i),
-  url: yup.string().trim().url().required()
-});
 
 urlRouter.get("/", withAuth, async (req, res) => {
   const urls = await req.shortURLsRepository.find({
@@ -30,7 +21,8 @@ urlRouter.get("/", withAuth, async (req, res) => {
 urlRouter.post("/", withAuth, async (req, res, next) => {
   try {
     let { alias, url } = req.body;
-    await schema.validate({
+    const shortURLService = Container.get(ShortURLService);
+    await shortURLService.shortUrlSchema.validate({
       alias,
       url
     });
@@ -68,7 +60,9 @@ urlRouter.patch("/", withAuth, async (req, res, next) => {
     if (!(await shortURLsService.urlBelongsToUser({ alias }, req.loggedInUser))) {
       throw new CodedError("User is not allowed to edit provided url", 401);
     }
-    await schema.validate({ url });
+
+    const shortURLService = Container.get(ShortURLService);
+    await shortURLService.shortUrlSchema.validate({ url });
     await req.shortURLsRepository.update({ alias }, { url });
     res.json({ url, alias });
   } catch (error) {

@@ -1,6 +1,7 @@
 import { Service } from "typedi";
 import { Repository } from "typeorm";
 import { InjectRepository } from "typeorm-typedi-extensions";
+import * as yup from "yup";
 
 import { User } from "../user/model";
 
@@ -24,4 +25,12 @@ export class ShortURLService {
 
     return !!url;
   }
+
+  shortUrlSchema = yup.object().shape({
+    alias: yup
+      .string()
+      .trim()
+      .matches(/^[\w\-]+$/i),
+    url: yup.string().trim().url().required()
+  });
 }
