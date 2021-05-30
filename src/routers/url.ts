@@ -55,7 +55,7 @@ urlRouter.post("/", withAuth, async (req, res, next) => {
       user: req.loggedInUser
     });
 
-    res.status(200).json(created);
+    res.status(200).json({ ...created.raw, url, alias });
   } catch (error) {
     next(error);
   }
