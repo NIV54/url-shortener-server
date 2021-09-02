@@ -5,6 +5,7 @@ import { Container } from "typedi";
 import { ShortURLService } from "../db/short-url/service";
 import { User } from "../db/user/model";
 import { withAuth } from "../middlewares/route-guards";
+import { loggedInOrGuest } from "../middlewares/route-guards/logged-in-or-guest";
 import { CodedError } from "../utils/errors/CodedError";
 
 export const urlRouter = Router();
@@ -19,7 +20,7 @@ urlRouter.get("/", withAuth, async (req, res) => {
   res.send(urls);
 });
 
-urlRouter.post("/", withAuth, async (req, res, next) => {
+urlRouter.post("/", loggedInOrGuest, async (req, res, next) => {
   try {
     let { alias, url } = req.body;
     const shortURLService = Container.get(ShortURLService);

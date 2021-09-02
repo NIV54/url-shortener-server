@@ -32,7 +32,7 @@ export const withAuth = async (req: Request, res: Response, next: NextFunction) 
           .status(401)
           .json({ message: "User does not exist", code: errorCodes.GENERAL_AUTH_ERROR });
       }
-    } catch (error) {
+    } catch (_error) {
       const refreshToken =
         req.body.refreshToken || req.query.refreshToken || req.cookies.refreshToken;
       if (!refreshToken) {
