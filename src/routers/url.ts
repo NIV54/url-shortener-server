@@ -3,6 +3,7 @@ import { nanoid } from "nanoid";
 import { Container } from "typedi";
 
 import { ShortURLService } from "../db/short-url/service";
+import { User } from "../db/user/model";
 import { withAuth } from "../middlewares/with-auth";
 import { CodedError } from "../utils/errors/CodedError";
 
@@ -57,7 +58,7 @@ urlRouter.patch("/", withAuth, async (req, res, next) => {
   try {
     const { url, alias } = req.body;
     const shortURLsService = Container.get(ShortURLService);
-    if (!(await shortURLsService.urlBelongsToUser({ alias }, req.loggedInUser))) {
+    if (!(await shortURLsService.urlBelongsToUser({ alias }, req.loggedInUser as User))) {
       throw new CodedError("User is not allowed to edit provided url", 401);
     }
 
@@ -74,7 +75,7 @@ urlRouter.delete("/:id", withAuth, async (req, res, next) => {
   try {
     const { id } = req.params;
     const shortURLsService = Container.get(ShortURLService);
-    if (!(await shortURLsService.urlBelongsToUser({ id }, req.loggedInUser))) {
+    if (!(await shortURLsService.urlBelongsToUser({ id }, req.loggedInUser as User))) {
       throw new CodedError("User is not allowed to delete provided url", 401);
     }
     await req.shortURLsRepository.delete(id);

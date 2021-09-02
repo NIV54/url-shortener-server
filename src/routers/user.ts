@@ -6,6 +6,7 @@ import { Container } from "typedi";
 import * as yup from "yup";
 
 import { cookieOptions } from "../common/cookie-options";
+import { User } from "../db/user/model";
 import { UserService } from "../db/user/service";
 import { withAuth } from "../middlewares/with-auth";
 import { CodedError } from "../utils/errors/CodedError";
@@ -101,7 +102,7 @@ userRouter.post("/logout", withAuth, async (req, res, next) => {
 
     if (refreshToken) {
       const userService = Container.get(UserService);
-      await userService.revokeRefreshToken(req.loggedInUser, refreshToken);
+      await userService.revokeRefreshToken(req.loggedInUser as User, refreshToken);
     }
     res.clearCookie("jwt");
     res.clearCookie("refreshToken");
@@ -125,6 +126,6 @@ userRouter.post("/jwt", async (req, res, next) => {
 });
 
 userRouter.post("/", withAuth, async (req, res) => {
-  const { password, ...user } = req.loggedInUser;
+  const { password, ...user } = req.loggedInUser as User;
   res.json({ user });
 });
