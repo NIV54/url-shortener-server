@@ -10,6 +10,11 @@ interface SignedUser {
   id: string;
 }
 
+/**
+ * gets the user from the jwt
+ * if jwt expired, get the user from refresh token
+ * otherwise acts as a route guard (can't use this route if you're not logged in)
+ */
 export const withAuth = async (req: Request, res: Response, next: NextFunction) => {
   const secret: string = config.get("jwtSecret");
   let jsonWebToken = req.body.jwt || req.query.jwt || req.cookies.jwt;
