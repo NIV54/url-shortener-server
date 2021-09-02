@@ -17,7 +17,7 @@ interface SignedUser {
  */
 export const withAuth = async (req: Request, res: Response, next: NextFunction) => {
   const secret: string = config.get("jwtSecret");
-  let jsonWebToken = req.body.jwt || req.query.jwt || req.cookies.jwt;
+  const jsonWebToken = req.body.jwt || req.query.jwt || req.cookies.jwt;
 
   if (!jsonWebToken) {
     res
