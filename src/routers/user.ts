@@ -8,7 +8,7 @@ import * as yup from "yup";
 import { cookieOptions } from "../common/cookie-options";
 import { User } from "../db/user/model";
 import { UserService } from "../db/user/service";
-import { withAuth } from "../middlewares/with-auth";
+import { withAuth } from "../middlewares/route-guards";
 import { CodedError } from "../utils/errors/CodedError";
 
 export const userRouter = Router();

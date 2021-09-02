@@ -4,7 +4,7 @@ import { Container } from "typedi";
 
 import { ShortURLService } from "../db/short-url/service";
 import { User } from "../db/user/model";
-import { withAuth } from "../middlewares/with-auth";
+import { withAuth } from "../middlewares/route-guards";
 import { CodedError } from "../utils/errors/CodedError";
 
 export const urlRouter = Router();

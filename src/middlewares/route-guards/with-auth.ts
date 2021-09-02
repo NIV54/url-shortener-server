@@ -3,8 +3,8 @@ import { NextFunction, Request, Response } from "express";
 import jwt from "jsonwebtoken";
 import { Container } from "typedi";
 
-import { UserService } from "../db/user/service";
-import * as errorCodes from "../utils/errors/error-codes";
+import { UserService } from "../../db/user/service";
+import * as errorCodes from "../../utils/errors/error-codes";
 
 interface SignedUser {
   id: string;
