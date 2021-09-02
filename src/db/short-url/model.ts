@@ -17,6 +17,6 @@ export class ShortURL {
   @UpdateDateColumn()
   lastUpdated: Date;
 
-  @ManyToOne(type => User, user => user.shortUrls, { lazy: true })
-  user: Lazy<User>;
+  @ManyToOne(type => User, user => user.shortUrls, { lazy: true, nullable: true })
+  user?: Lazy<User>;
 }
