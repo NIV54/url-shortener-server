@@ -1,9 +1,9 @@
 {
   "db": {
     "type": "postgres",
-    "host": "ec2-63-34-120-149.eu-west-1.compute.amazonaws.com",
+    "host": "ec2-99-81-197-185.eu-west-1.compute.amazonaws.com",
     "port": 5432,
-    "database": "d95b6epdbjln9t",
+    "database": "ddhvj8lahkk83j",
     "ssl": { "rejectUnauthorized": false }
   }
 }
